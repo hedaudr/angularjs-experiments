@@ -1,0 +1,317 @@
+<!DOCTYPE>
+<html ng-app="finApp">
+<head>
+	<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+<style>
+	
+	.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+	.width_30{
+		width: 30em;
+	}
+	.width_10{
+		width: 10em;
+	}
+	.width_20{
+		width: 20em;
+	}
+	table#newForm{		
+		border-spacing: 2px;
+		border-collapse: separate;
+	}
+	
+	
+input[type=checkbox] {
+	-webkit-appearance: none;
+    width: 1em;
+    height: 1em;
+}
+input[type=checkbox]:after {
+	content: '+';
+}
+input.open[type=checkbox]:after {
+	content: '-';
+}
+button.asImg{
+	-webkit-appearance: none;
+	outline: none;
+	border: 0;
+	background: transparent;
+}
+.btn-separator:after {
+    content: ' ';
+    display: block;
+    float: left;
+    background: #ADADAD;
+    margin: 0 5px;
+    height: 20px;
+    width: 1px;
+}
+
+</style>
+	<title>Finance App</title>
+</head>
+<body>
+	<div class="container" ng-controller="FinAppCtrl">
+		<h1>Finance App</h1>
+		
+		<div >
+			<h3>Income sheet</h3>
+			<button class="btn btn-default" ng-show="!showform" ng-click="showForm('new')">New Income</button>
+		</div>
+		<br />
+		<div ng-show="showform">
+			<div class="modal-header">
+				<div ng-show="mode == 'new'">
+					<h4>New Income</h4>
+				</div>
+				<div ng-show="mode == 'edit'">
+					<h4>Income # </h4>
+				</div>
+			</div>
+			<div class="modal-body">
+				<form novalidate class="simple-form" >
+					<table id="newForm">
+						<tr>
+							<td><label class="width_20">Type:</label></td>
+							<td colspan="3">
+								<select ng-model="newincome.type" class="form-control">
+									<option value="">-- Select Type --</option>
+									<option value="P">Plan</option>
+									<option value="A">Actual</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td><label class="width_20">Pay Period (Month/Year):</label></td>
+							<td class="nowrap">	
+								<select ng-model="newincome.payperiod" class="form-control"
+									ng-options="currMonth.key as currMonth.value for currMonth in months">
+									<option value="">-- Month --</option>
+								</select>
+							</td>
+							<td><span style="padding-left: 1em; padding-right: 1em;">/</span></td>
+							<td class="nowrap">
+								<select ng-model="newincome.year" 
+										ng-options="n for n in [] | range:2009:2020" class="form-control">
+										<option value="">-- Year --</option>
+									</select>
+							</td>
+						</tr>
+						<tr ng-if="newincome.type == 'A'">
+							<td><label class="width_20">Pay Date:</label></td>
+							<td colspan="3"><span class="input-group">
+								<input type="text" class="form-control width_30" datepicker-popup="{{format}}" ng-model="newincome.paydate" is-open="datepicker.opened" min-date="'2009-01-01'" max-date="'2020-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Close" />
+								<span class="input-group-btn">
+								<button type="button" class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+								</span>
+								</span>
+							</td>
+						</tr>
+						<tr>
+							<td><label class="width_20">Rate:</label></td>
+							<td colspan="3"><input type="text" ng-model="newincome.rate" class="form-control width_30"/></td>
+						</tr>
+						<tr>
+							<td><label class="width_20">Total Hours:</label></td>
+							<td colspan="3"><input type="text" ng-model="newincome.hours" class="form-control width_30"/></td>
+						</tr>
+						<tr>
+							<td><label class="width_20">Gross Pay:</label></td>
+							<td colspan="3"><input type="text" ng-model="newincome.grosspay" class="form-control width_30"/></td>
+						</tr>
+						<tr>
+							<td><label class="width_20">Deductions:</label></td>
+							<td colspan="3"><input type="text" ng-model="newincome.deductions" class="form-control width_30"/></td>
+						</tr>
+						<tr>
+							<td><label class="width_20">Net Pay:</label></td>
+							<td colspan="3"><input type="text" ng-model="newincome.netpay" class="form-control width_30"/></td>
+						</tr>
+						<tr>
+							<td><label class="width_20">Comments:</label></td>
+							<td colspan="3"><textarea ng-model="newincome.comments" class="form-control width_30" ></textarea></td>
+						</tr>
+					</table>
+					<br />
+					<div>
+						<button class="btn btn-primary" ng-show="mode == 'new'" ng-click="addIncome()">Add</button>
+						<button class="btn btn-primary" ng-show="mode == 'edit'" ng-click="updateIncome()">Update</button>
+						<button class="btn btn-warning" ng-click="showform=false">Cancel</button>
+					</div>
+				</form>
+			</div>
+		</div>
+		<br />
+		<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+			<div class="panel panel-default panel-primary">
+				<div class="panel-heading" role="tab" id="headingOne">
+					<h4 class="panel-title">
+						<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
+							aria-expanded="true" aria-controls="collapseOne">
+							Year: 2015
+						</a>
+						<span class="pull-right">Total income: $40,000</span>
+					</h4>
+				</div>
+				<div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledBy="headingOne">
+					<div class="panel-body">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>&nbsp;</th>
+									<th>Pay Period</th>
+									<th>Pay Date</th>
+									<th>Rate</th>
+									<th>Plan hours</th>
+									<th>Actual hours</th>
+									<th>Hours Diff</th>
+									<th>Gross Pay</th>
+									<th>Deductions</th>
+									<th>Net Pay</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody ng-repeat="income in incomelist | filter:{ year: 2015 }">				
+								<tr>									
+									<td>
+										<button type="button" class="btn btn-default asImg" ng-click="show=!show">
+											<span ng-show="!show" class="glyphicon glyphicon-plus-sign"></span>
+											<span ng-show="show" class="glyphicon glyphicon-minus-sign"></span>
+										</button>
+									</td>
+									<td>{{income.payperiod}}</td>
+									<td>{{income.actual.paydate | date:'shortDate'}}</td>
+									<td>{{income.rate}}</td>
+									<td>{{income.plan.hours}}</td>
+									<td>{{income.actual.hours}}</td>
+									<td>{{income.plan.hours - income.actual.hours}}</td>
+									<td>{{income.actual.grosspay | currency }}</td>
+									<td>{{income.actual.deductions | currency }}</td>
+									<td>{{income.actual.netpay | currency }}</td>
+									<td>
+										<div class="btn-group btn-group-sm" role="group" >
+											<button type="button" class="btn btn-default asImg" ng-click="edit(income._id)">
+												<span class="glyphicon glyphicon-pencil"></span>
+											</button>
+											<span class="btn-separator"></span>
+											<button type="button" class="btn btn-default asImg" data-toggle="modal" data-target="#deleteModal">
+												<span class="glyphicon glyphicon-remove"></span>
+											</button>
+										</div>
+									</td>
+								</tr>
+								<tr ng-show=show>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>{{income.rate}}</td>
+									<td>{{income.plan.hours}}</td>
+									<td>{{income.actual.hours}}</td>
+									<td>{{income.plan.hours - income.actual.hours}}</td>
+									<td>{{income.plan.grosspay | currency }}</td>
+									<td>{{income.plan.deductions | currency }}</td>
+									<td>{{income.plan.netpay | currency }}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-default panel-primary">
+				<div class="panel-heading" role="tab" id="headingTwo">
+					<h4 class="panel-title">
+						<a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"
+							aria-expanded="false" aria-controls="collapseTwo">
+							Year: 2014
+						</a>
+						<span class="pull-right">Total income: $50,000</span>
+					</h4>
+				</div>
+				<div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledBy="headingTwo">
+					<div class="panel-body">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>&nbsp;</th>
+									<th>Pay Period</th>
+									<th>Pay Date</th>
+									<th>Rate</th>
+									<th>Plan hours</th>
+									<th>Actual hours</th>
+									<th>Hours Diff</th>
+									<th>Gross Pay</th>
+									<th>Deductions</th>
+									<th>Net Pay</th>
+								</tr>
+							</thead>
+							<tbody ng-repeat="income in incomelist| filter:{ year: 2014 }">				
+								<tr>
+									<!--<td> <input type=checkbox ng-model=show ng-class="{open:show}"></input>
+															
+									</td>-->
+									<td>
+										<button type="button" class="btn btn-default asImg" ng-click="show=!show">
+											<span ng-show="!show" class="glyphicon glyphicon-plus-sign"></span>
+											<span ng-show="show" class="glyphicon glyphicon-minus-sign"></span>
+										</button>
+									</td>
+									<td>{{income.payperiod}}</td>
+									<td>{{income.actual.paydate | date:'shortDate'}}</td>
+									<td>{{income.rate}}</td>
+									<td>{{income.plan.hours}}</td>
+									<td>{{income.actual.hours}}</td>
+									<td>{{income.plan.hours - income.actual.hours}}</td>
+									<td>{{income.actual.grosspay | currency }}</td>
+									<td>{{income.actual.deductions | currency }}</td>
+									<td>{{income.actual.netpay | currency }}</td>
+								</tr>
+								<tr ng-show=show>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>{{income.rate}}</td>
+									<td>{{income.plan.hours}}</td>
+									<td>{{income.actual.hours}}</td>
+									<td>{{income.plan.hours - income.actual.hours}}</td>
+									<td>{{income.plan.grosspay | currency }}</td>
+									<td>{{income.plan.deductions | currency }}</td>
+									<td>{{income.plan.netpay | currency }}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel">
+		  <div class="modal-dialog" role="document">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="deleteModalLabel">Confirm Delete</h4>
+			  </div>
+			  <div class="modal-body">
+				<p>Are you sure you want to delete this income?</p>
+			  </div>
+			  <div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary">Yes</button>
+			  </div>
+			</div>
+		  </div>
+		</div>
+	</div>
+	
+<!-- Latest Scripts here -->
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="controllers/controller.js"></script>
+<script src="js/ui-bootstrap-tpls-0.13.2.js"></script>
+</body>
+</html>

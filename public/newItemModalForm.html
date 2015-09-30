@@ -1,0 +1,50 @@
+<!DOCTYPE>
+<html ng-app="finApp">
+	<head>
+		<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+	
+		<title>Add New Income</title>
+	</head>
+	<body>
+		<h2>New Income</h2>
+		
+		<div class="container">
+			 <ul>
+                <li ng-repeat="item in items">
+                    <a href="#" ng-click="$event.preventDefault(); selected.item = item">{{ item }}</a>
+                </li>
+            </ul>
+            Selected: <b>{{ selected.item }}</b>
+			<br />
+			<hr>
+			<br />
+			<form novalidate class="simple-form" >
+				<label>Pay Period: <input type="text" ng-model="newincome.payperiod" />
+				</label><br />
+				<label>Pay Date: 
+					<p class="input-group">
+					  <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="newincome.paydate" is-open="opened" min-date="minDate" max-date="'2020-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Close" />
+					  <span class="input-group-btn">
+						<button type="button" class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+					  </span>
+					</p>
+				</label>
+				
+				<div class="modal-footer">
+					<button class="btn btn-primary" ng-click="ok()">OK</button>
+					<button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+				</div>
+			</form>
+		</div>
+		
+		
+		
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
+<script src="controllers/controller.js"></script>
+<script src="js/ui-bootstrap-tpls-0.13.2.js"></script>	
+	</body>
+</html>
