@@ -22,8 +22,11 @@
 		border-spacing: 2px;
 		border-collapse: separate;
 	}
-	
-	
+	 tfoot{
+	 	font-weight: bold;
+	 	border: 1px;
+	 }
+
 input[type=checkbox] {
 	-webkit-appearance: none;
     width: 1em;
@@ -146,7 +149,7 @@ button.asImg{
 			</div>
 		</div>
 		<br />
-		<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+		<!-- <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
 			<div class="panel panel-default panel-primary">
 				<div class="panel-heading" role="tab" id="headingOne">
 					<h4 class="panel-title">
@@ -154,7 +157,7 @@ button.asImg{
 							aria-expanded="true" aria-controls="collapseOne">
 							Year: 2015
 						</a>
-						<span class="pull-right">Total income: $40,000</span>
+						<span class="pull-right">Total income: {{ $scope.inco }}</span>
 					</h4>
 				</div>
 				<div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledBy="headingOne">
@@ -194,11 +197,11 @@ button.asImg{
 									<td>{{income.actual.netpay | currency }}</td>
 									<td>
 										<div class="btn-group btn-group-sm" role="group" >
-											<button type="button" class="btn btn-default asImg" ng-click="edit(income._id)">
+											<button type="button" class="btn btn-default asImg" ng-click="edit(income._id, 'A')">
 												<span class="glyphicon glyphicon-pencil"></span>
 											</button>
 											<span class="btn-separator"></span>
-											<button type="button" class="btn btn-default asImg" data-toggle="modal" data-target="#deleteModal">
+											<button type="button" class="btn btn-default asImg" data-toggle="modal" data-target="#deleteModal" data-i>
 												<span class="glyphicon glyphicon-remove"></span>
 											</button>
 										</div>
@@ -217,6 +220,20 @@ button.asImg{
 									<td>{{income.plan.netpay | currency }}</td>
 								</tr>
 							</tbody>
+							<tfoot >
+								<tr>
+									<td>&nbsp;</td>  
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>{{ incomelist | sumTotal: 'plan.hours' }}</td>
+									<td>{{ incomelist | sumTotal: 'actual.hours' }}</td>
+									<td>&nbsp;</td>
+									<td>{{ incomelist | sumTotal: 'actual.grosspay' | currency }}<td>
+									<td>{{ incomelist | sumTotal: 'actual.deductions' | currency }}</td>
+									<td>{{ incomelist | sumTotal: 'actual.netpay' | currency }}</td>
+								</tr>
+							</tfoot>
 						</table>
 					</div>
 				</div>
@@ -250,9 +267,7 @@ button.asImg{
 							</thead>
 							<tbody ng-repeat="income in incomelist| filter:{ year: 2014 }">				
 								<tr>
-									<!--<td> <input type=checkbox ng-model=show ng-class="{open:show}"></input>
-															
-									</td>-->
+									
 									<td>
 										<button type="button" class="btn btn-default asImg" ng-click="show=!show">
 											<span ng-show="!show" class="glyphicon glyphicon-plus-sign"></span>
@@ -282,12 +297,104 @@ button.asImg{
 									<td>{{income.plan.netpay | currency }}</td>
 								</tr>
 							</tbody>
+							<tfoot >
+								<tr>
+									<td>&nbsp;</td>  
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>{{ incomelist | sumTotal: 'plan.hours' }}</td>
+									<td>{{ incomelist | sumTotal: 'actual.hours' }}</td>
+									<td>&nbsp;</td>
+									<td>{{ incomelist | sumTotal: 'actual.grosspay' | currency }}<td>
+									<td>{{ incomelist | sumTotal: 'actual.deductions' | currency }}</td>
+									<td>{{ incomelist | sumTotal: 'actual.netpay' | currency }}</td>
+								</tr>
+							</tfoot>
 						</table>
 					</div>
 				</div>
 			</div>
-		</div>
+		</div> -->
 		
+		<accordion>
+			<accordion-group heading="Year: {{yearIncome.year}}" ng-repeat="yearIncome in yearIncomeMap | orderBy:yearIncome.year:true">
+				<table class="table" >
+					<thead>
+						<tr>
+							<th>&nbsp;</th>
+							<th>Pay Period</th>
+							<th>Pay Date</th>
+							<th>Rate</th>
+							<th>Plan hours</th>
+							<th>Actual hours</th>
+							<th>Hours Diff</th>
+							<th>Gross Pay</th>
+							<th>Deductions</th>
+							<th>Net Pay</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody ng-repeat="income in yearIncome.incomes">				
+						<tr>									
+							<td>
+								<button type="button" class="btn btn-default asImg" ng-click="show=!show">
+									<span ng-show="!show" class="glyphicon glyphicon-plus-sign"></span>
+									<span ng-show="show" class="glyphicon glyphicon-minus-sign"></span>
+								</button>
+							</td>
+							<td>{{income.payperiod}}</td>
+							<td>{{income.actual.paydate | date:'shortDate'}}</td>
+							<td>{{income.rate}}</td>
+							<td>{{income.plan.hours}}</td>
+							<td>{{income.actual.hours}}</td>
+							<td>{{income.plan.hours - income.actual.hours}}</td>
+							<td>{{income.actual.grosspay | currency }}</td>
+							<td>{{income.actual.deductions | currency }}</td>
+							<td>{{income.actual.netpay | currency }}</td>
+							<td>
+								<div class="btn-group btn-group-sm" role="group" >
+									<button type="button" class="btn btn-default asImg" ng-click="edit(income._id, 'A')">
+										<span class="glyphicon glyphicon-pencil"></span>
+									</button>
+									<span class="btn-separator"></span>
+									<button type="button" class="btn btn-default asImg" data-toggle="modal" data-target="#deleteModal" data-i>
+										<span class="glyphicon glyphicon-remove"></span>
+									</button>
+								</div>
+							</td>
+						</tr>
+						<tr ng-show=show>
+							<td>&nbsp;</td>
+							<td>&nbsp;</td>
+							<td>&nbsp;</td>
+							<td>{{income.rate}}</td>
+							<td>{{income.plan.hours}}</td>
+							<td>{{income.actual.hours}}</td>
+							<td>{{income.plan.hours - income.actual.hours}}</td>
+							<td>{{income.plan.grosspay | currency }}</td>
+							<td>{{income.plan.deductions | currency }}</td>
+							<td>{{income.plan.netpay | currency }}</td>
+						</tr>
+					</tbody>
+					<tfoot >
+						<tr>
+							<td>&nbsp;</td>  
+							<td>&nbsp;</td>
+							<td>&nbsp;</td>
+							<td>&nbsp;</td>
+							<td>{{ incomelist | sumTotal: 'plan.hours' }}</td>
+							<td>{{ incomelist | sumTotal: 'actual.hours' }}</td>
+							<td>&nbsp;</td>
+							<td>{{ incomelist | sumTotal: 'actual.grosspay' | currency }}<td>
+							<td>{{ incomelist | sumTotal: 'actual.deductions' | currency }}</td>
+							<td>{{ incomelist | sumTotal: 'actual.netpay' | currency }}</td>
+						</tr>
+					</tfoot>
+				</table>
+			</accordion-group>
+		</accordion>
+
 		<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel">
 		  <div class="modal-dialog" role="document">
 			<div class="modal-content">
@@ -300,7 +407,7 @@ button.asImg{
 			  </div>
 			  <div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-				<button type="button" class="btn btn-primary">Yes</button>
+				<button type="button" class="btn btn-primary" ng-click="remove()">Yes</button>
 			  </div>
 			</div>
 		  </div>
@@ -308,8 +415,8 @@ button.asImg{
 	</div>
 	
 <!-- Latest Scripts here -->
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
 <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 <script src="controllers/controller.js"></script>
 <script src="js/ui-bootstrap-tpls-0.13.2.js"></script>

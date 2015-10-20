@@ -8,6 +8,48 @@ myApp.filter('range', function() {
     return input;
   };
 });
+myApp.filter('sumTotal', function(){
+	return function(data, key){
+		//console.log(data);
+		if(data == undefined)
+			return 0;
+
+		if( typeof(data) == 'undefined' && typeof(key) == 'undefined' )
+			return 0;
+		//console.log("key: "+ key);
+		//console.log("data len: "+data.length);
+		//console.log(data);
+		var fldKey = [];		
+		if( key.indexOf(".") )
+			fldKey = key.split(".");
+
+		var sum = 0;
+		for( var i=0; i<data.length; i++ ){
+			//console.log(data[i]);
+			var incomeObj = data[i];
+			var keyObj = key;
+			if( fldKey.length > 1 ){
+				var tempObj;
+				for( var j=0; j<fldKey.length; j++ ){		
+					if( j == 0 ) 
+						tempObj = incomeObj.hasOwnProperty(fldKey[j]) ? incomeObj[fldKey[j]] : 'undefined';
+					else
+						tempObj = tempObj.hasOwnProperty(fldKey[j]) ? tempObj[fldKey[j]] : 'undefined';
+
+					if( tempObj == 'undefined' )
+						break;
+				}			
+				keyObj = tempObj;
+			}
+			//console.log(keyObj);
+			if( keyObj !== 'undefined' )
+				sum = sum + parseInt(keyObj);
+			
+			//console.log(sum);
+		}
+		return sum;
+	};
+});
 myApp.controller('FinAppCtrl',['$scope','$filter','$http',
 	function($scope, $filter, $http){
 		console.log("Hello World from Fin app controller");
@@ -15,29 +57,29 @@ myApp.controller('FinAppCtrl',['$scope','$filter','$http',
 	
 	 // *********************************************** Initializing months *******************************	
 	$scope.months = [      
-      {"key": "January",
+      {"key": "01-January",
       "value": "01 - January"},
-      {"key": "February",
+      {"key": "02-February",
       "value": "02 - February"},
-      {"key": "March",
+      {"key": "03-March",
       "value": "03 - March"},
-      {"key": "April",
+      {"key": "04-April",
       "value": "04 - April"},
-      {"key": "May",
+      {"key": "05-May",
       "value": "05 - May"},
-      {"key": "June",
+      {"key": "06-June",
       "value": "06 - June"},
-      {"key": "July",
+      {"key": "07-July",
       "value": "07 - July"},
-      {"key": "August",
+      {"key": "08-August",
       "value": "08 - August"},
-      {"key": "September",
+      {"key": "09-September",
       "value": "09 - September"},
-      {"key": "October",
+      {"key": "10-October",
       "value": "10 - October"},
-      {"key": "November",
+      {"key": "11-November",
       "value": "11 - November"},
-      {"key": "December",
+      {"key": "12-December",
       "value": "12 - December"}
     ];
 		
@@ -129,15 +171,49 @@ myApp.controller('FinAppCtrl',['$scope','$filter','$http',
 				console.log("I got the data I requested");
 				console.log(response);
 				$scope.incomelist = response;				
-				if($scope.showme){
+				if($scope.showform){
 					$scope.newincome = "";
 					$scope.showform = false;
 				}
+
+				buildYearIncomeMap();
+
 			});
 		};
-		
+		var buildYearIncomeMap = function(){
+			$scope.yearIncomeMap = [];
+			//console.log("building year income map!!");
+			if( $scope.incomelist != 'undefined' && $scope.incomelist.length > 1 ){
+				var yearIncome = {};
+				for( var i=0; i < $scope.incomelist.length; i++ ){
+					var icome = $scope.incomelist[i];					
+					//console.log(icome);
+					//console.log(yearIncome);
+					if( yearIncome.hasOwnProperty('year') && yearIncome.year === icome.year ){						
+						yearIncome.incomes.push(icome);
+					}else{
+						yearIncome = {};
+						yearIncome.year = icome.year;
+						yearIncome.incomes = [];
+						yearIncome.incomes.push(icome);
+					}
+					//console.log("formed yearIncome ");
+					//console.log(yearIncome);
+					var index = $scope.yearIncomeMap.indexOf(yearIncome);
+					if( index !== -1 ){
+						$scope.yearIncomeMap[index] = yearIncome;
+					}else{
+						$scope.yearIncomeMap.push(yearIncome);
+					}
+				}
+			}
+			console.log($scope.yearIncomeMap);
+			//console.log("end of building year income map!!");
+		}
 		refresh();
 	
+		
+
 		$scope.addIncome = function(){
 			console.log($scope.newincome);
 			var mIncome = null;
@@ -246,5 +322,20 @@ myApp.controller('FinAppCtrl',['$scope','$filter','$http',
 			});
 		};
 		
+
+		$scope.remove = function(){
+			console.log("removing item with id--");
+			//console.log($scope.income._id);
+			
+			/*$http.delete('/financialapp/' + id).success(function(response){
+				refresh();
+			});			*/
+		};
+
+
+
+
 	}]);
+
+
 

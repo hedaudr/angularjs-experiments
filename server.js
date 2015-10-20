@@ -87,8 +87,11 @@ app.get('/financialapp', function(req, resp){
 	var incomelist = [income1, income2, income3, income4];
 	resp.json(incomelist);
 	*/
-	
-	db.finances.find(function(err, docs){
+	var findAllOptions = {
+		"sort": ["payperiod","desc"]
+	}
+
+	db.finances.find().sort({ payperiod:-1 }, function(err, docs){
 		//console.log(docs);
 		if(err) { 
 			console.log(err);
@@ -147,5 +150,14 @@ app.get('/financialapp/:year/:month', function(req, resp){
 		resp.json(doc);
 	});
 });
+
+app.delete('/financialapp/:id', function(req, resp){
+	var id = req.params.id;
+	console.log(id);
+	db.finances.remove({_id: mongojs.ObjectId(id)}, function(err, doc){
+		resp.json(doc);
+	});
+});
+
 app.listen(3000);
 console.log("Server running on port 3000");
